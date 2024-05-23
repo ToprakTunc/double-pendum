@@ -1,0 +1,93 @@
+import matplotlib.pyplot as plt
+from math import pi, sin, cos
+
+
+def double_pendulum():
+    #Base Code
+    t0 = 0.
+    t_max = 20.
+    dt = 0.01
+    n = int((t_max - t0) / dt)
+    g = 9.81
+    w1_0 = 0.0
+    w2_0 = 0.0
+
+    Q1 = int(input("İlk açıyı belirleyin (derece):\n"))
+    Q2 = int(input("İkinci açıyı belirleyin (derece):\n"))
+
+    L1 = float(input("İlk ipin uzunluğunu giriniz (metre):\n"))
+    L2 = float(input("İkinci ipin uzunluğunu giriniz (metre):\n"))
+
+    m1 = float(input("1. topun kütlesini giriniz (kg):\n"))
+    m2 = float(input("2. topun kütlesini giriniz (kg):\n"))
+
+    theta1 = Q1 * pi / 180
+    theta2 = Q2 * pi / 180
+    w1 = w1_0
+    w2 = w2_0
+
+    def theta1_double_dot(theta1, theta2, w1, w2):
+        return (
+                -g * (2 * m1 + m2) * sin(theta1)
+                - m2 * g * sin(theta1 - 2 * theta2)
+                - 2 * sin(theta1 - theta2) * m2 * (w2 ** 2 * L2 + w1 ** 2 * L1 * cos(theta1 - theta2))
+        ) / (
+                L1 * (2 * m1 + m2 - m2 * cos(2 * theta1 - 2 * theta2))
+        )
+
+    def theta2_double_dot(theta1, theta2, w1, w2):
+        return (
+                2 * sin(theta1 - theta2) * (
+                w1 ** 2 * L1 * (m1 + m2)
+                + g * (m1 + m2) * cos(theta1)
+                + w2 ** 2 * L2 * m2 * cos(theta1 - theta2)
+        )
+        ) / (
+                L2 * (2 * m1 + m2 - m2 * cos(2 * theta1 - 2 * theta2))
+        )
+
+    t_list = [t0]
+    w1_list = [w1_0]
+    w2_list = [w2_0]
+    theta1_list = [theta1]
+    theta2_list = [theta2]
+
+    for i in range(n):
+        t = t_list[i] + dt
+        t_list.append(t)
+
+        w1_new = w1_list[i] + dt * theta1_double_dot(theta1_list[i], theta2_list[i], w1_list[i], w2_list[i])
+        w1_list.append(w1_new)
+
+        w2_new = w2_list[i] + dt * theta2_double_dot(theta1_list[i], theta2_list[i], w1_list[i], w2_list[i])
+        w2_list.append(w2_new)
+
+        theta1_new = theta1_list[i] + w1_new * dt
+        theta1_list.append(theta1_new)
+
+        theta2_new = theta2_list[i] + w2_new * dt
+        theta2_list.append(theta2_new)
+
+    # Convert angles to x and y positions
+    x1 = [L1 * sin(theta) for theta in theta1_list]
+    y1 = [-L1 * cos(theta) for theta in theta1_list]
+    x2 = [x1[i] + L2 * sin(theta2_list[i]) for i in range(len(x1))]
+    y2 = [y1[i] - L2 * cos(theta2_list[i]) for i in range(len(y1))]
+
+    # Plotting
+    plt.figure(figsize=(8, 6))
+    plt.plot(x1, y1, label='Pendulum 1', color='Red')
+    plt.plot(x2, y2, label='Pendulum 2')
+    plt.xlabel('x (m)')
+    plt.ylabel('y (m)')
+    plt.title('Double Pendulum Path')
+    plt.text(-2.7, -2, r'$\theta_1 = %g$' % (theta1_list[0]), fontsize=15, color='blue')
+    plt.text(-2.7, -1.8, r'$\dot{\theta_1} = %g$' % (w1_list[0]), fontsize=15, color='blue')
+    plt.text(-2.7, -1.6, r'$\theta_2 = %g$' % (theta2_list[0]), fontsize=15, color='blue')
+    plt.text(-2.7, -1.4, r'$\dot{\theta_2} = %g$' % (w2_list[0]), fontsize=15, color='blue')
+    plt.legend()
+    plt.grid(False)
+    plt.show()
+
+
+double_pendulum()
