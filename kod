@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from math import pi, sin, cos
-
+from matplotlib.animation import FuncAnimation, PillowWriter
 
 def double_pendulum():
     #Base Code
@@ -11,12 +11,11 @@ def double_pendulum():
     g = 9.81
     w1_0 = 0.0
     w2_0 = 0.0
+    L1 = 2
+    L2 = 2
 
     Q1 = int(input("İlk açıyı belirleyin (derece):\n"))
     Q2 = int(input("İkinci açıyı belirleyin (derece):\n"))
-
-    L1 = float(input("İlk ipin uzunluğunu giriniz (metre):\n"))
-    L2 = float(input("İkinci ipin uzunluğunu giriniz (metre):\n"))
 
     m1 = float(input("1. topun kütlesini giriniz (kg):\n"))
     m2 = float(input("2. topun kütlesini giriniz (kg):\n"))
@@ -81,13 +80,40 @@ def double_pendulum():
     plt.xlabel('x (m)')
     plt.ylabel('y (m)')
     plt.title('Double Pendulum Path')
-    plt.text(-2.7, -2, r'$\theta_1 = %g$' % (theta1_list[0]), fontsize=15, color='blue')
-    plt.text(-2.7, -1.8, r'$\dot{\theta_1} = %g$' % (w1_list[0]), fontsize=15, color='blue')
-    plt.text(-2.7, -1.6, r'$\theta_2 = %g$' % (theta2_list[0]), fontsize=15, color='blue')
-    plt.text(-2.7, -1.4, r'$\dot{\theta_2} = %g$' % (w2_list[0]), fontsize=15, color='blue')
     plt.legend()
     plt.grid(False)
     plt.show()
 
+    # Animation
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.set_xlim(-L1 - L2 - 0.5, L1 + L2 + 0.5)
+    ax.set_ylim(-L1 - L2 - 0.5, L1 + L2 + 0.5)
+    line, = ax.plot([], [], 'o-', lw=2)
+    trace1, = ax.plot([], [], 'r-', alpha=0.5)
+    trace2, = ax.plot([], [], 'b-', alpha=0.5)
+
+    history_len = 500
+
+    def init():
+        line.set_data([], [])
+        trace1.set_data([], [])
+        trace2.set_data([], [])
+        return line, trace1, trace2
+
+    def update(frame):
+        this_x = [0, x1[frame], x2[frame]]
+        this_y = [0, y1[frame], y2[frame]]
+        line.set_data(this_x, this_y)
+
+        start = max(0, frame - history_len)
+        trace1.set_data(x1[start:frame], y1[start:frame])
+        trace2.set_data(x2[start:frame], y2[start:frame])
+
+        return line, trace1, trace2
+
+    ani = FuncAnimation(fig, update, frames=range(0, len(x1), 10), init_func=init, blit=True, interval=25)
+    plt.title('Double Pendulum Animation with Traces')
+    ani.save('double_pendulum_animation.gif', writer='ffmpeg', fps=30)
+    plt.show()
 
 double_pendulum()
