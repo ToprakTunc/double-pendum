@@ -8,9 +8,9 @@ def double_pendulum():
     t_max = 20.
     dt = 0.01
     n = int((t_max - t0) / dt)
-    g = 9.81
-    w1_0 = 0.0
-    w2_0 = 0.0
+    g = 0.0
+    w1_0 = 5.0
+    w2_0 = 5.0
     L1 = 2
     L2 = 2
 
@@ -83,6 +83,29 @@ def double_pendulum():
     plt.legend()
     plt.grid(False)
     plt.show()
+
+    # Plotting angles over time
+    plt.figure(figsize=(10, 5))
+    plt.plot(t_list, theta1_list, label='Theta 1 (Pendulum 1)', color='Red')
+    plt.plot(t_list, theta2_list, label='Theta 2 (Pendulum 2)', color='Blue')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Angle (rad)')
+    plt.title('Angles of Pendulums Over Time')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+    # Plotting angler speed over time
+    plt.figure(figsize=(10, 5))
+    plt.plot(t_list, w1_list, label='W1 (Pendulum 1)', color='Red')
+    plt.plot(t_list, w2_list, label='W2 (Pendulum 2)', color='Blue')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Angler Speed (rad/s)')
+    plt.title('Angler Speed of Pendulums Over Time')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 
     # Animation
     fig, ax = plt.subplots(figsize=(8, 6))
